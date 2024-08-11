@@ -14,7 +14,7 @@ export default function SubscribeButton({ productId }: { productId: string }) {
       setLoading(true)
       const { checkoutURL } = await axios.post<any, CreateCheckoutResponse>(
         "/api/payment/subscribe",
-        { userId: "clz5mzj200001rezsg6c809bz", productId }
+        { userId: "", productId }
       );
       console.log(checkoutURL);
       window.location.href = checkoutURL;

@@ -20,7 +20,7 @@ export async function POST(request:Request) {
     }
     const user = await prisma.user.findUnique({
       where: {
-        id: "clz5mzj200001rezsg6c809bz"
+        id: userID
       },
       select: {id: true, email: true}
     });

@@ -10,7 +10,7 @@ import bcrypt from "bcryptjs"
 
 export async function getUserSubscriptions() {
  const cookiesList = cookies();
-  const userId = cookiesList.get("userId")?.value || "clz5mzj200001rezsg6c809bz";
+  const userId = cookiesList.get("userId")?.value || "";
 
   if (!userId) {
     return null
@@ -55,7 +55,7 @@ export async function cancelSub(id: string){
 
 export async function getAPICredit() {
   const cookiesList = cookies();
-  const userId = cookiesList.get("userId")?.value || "clz5mzj200001rezsg6c809bz";
+  const userId = cookiesList.get("userId")?.value || "";
 
   if (!userId) {
     return null
