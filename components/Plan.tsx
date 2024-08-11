@@ -1,12 +1,9 @@
 import React from 'react'
 import SubscribeButton from './SubscribeButton';
-import { cookies } from 'next/headers';
 
 
 const Plan = ({ plan }: { plan: any }) => {
   const { description, productName, name, price } = plan.attributes;
-  const cookiesList = cookies();
-  const userId = cookiesList.get("userId")?.value || "";
   return (
     <>
       <div className="lg:w-1/3 lg:mt-px w-full mb-10 lg:mb-0 border-2 border-gray-300 lg:border-none rounded-lg lg:rounded-none">
@@ -59,7 +56,7 @@ const Plan = ({ plan }: { plan: any }) => {
           </svg>
         </p>
         <div className="border-t border-gray-300 p-6 text-center rounded-bl-lg">
-          <SubscribeButton productId={plan.id} userId={userId} />
+          <SubscribeButton productId={plan.id} />
         </div>
       </div>
     </>
