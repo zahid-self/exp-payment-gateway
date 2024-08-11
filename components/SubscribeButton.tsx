@@ -6,7 +6,7 @@ import { CreateCheckoutResponse } from "../app/api/payment/subscribe/route";
 import { LoaderIcon } from "react-hot-toast";
 import { useUser } from "@stackframe/stack";
 
-export default function SubscribeButton({ productId, userId }: { productId: string, userId: string }) {
+export default function SubscribeButton({ productId }: { productId: string }) {
 
   const [loading, setLoading] = useState(false);
 
