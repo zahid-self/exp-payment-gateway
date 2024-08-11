@@ -23,8 +23,8 @@ const SignUpForm = () => {
       setError('Please enter your password');
       return;
     }
-    const errorCode = await app.signUpWithCredential({ email, password });
     await insertUser({ email, password });
+    const errorCode = await app.signUpWithCredential({ email, password });
 
     if (errorCode) {
       setError(errorCode.message);

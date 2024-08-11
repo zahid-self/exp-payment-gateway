@@ -1,5 +1,5 @@
 import React from 'react';
-import { lemonSqueezySetup, listProducts } from "@lemonsqueezy/lemonsqueezy.js";
+import { listProducts } from "@lemonsqueezy/lemonsqueezy.js";
 import Plan from '~/components/Plan';
 import { getAPICredit, getUserSubscriptions } from '../actions';
 import SubscribedPlan from '~/components/SubscribedPlan';

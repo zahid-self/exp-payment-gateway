@@ -9,7 +9,7 @@ export type CreateCheckoutResponse = {
 
 export async function POST(request:Request) {
   try {
-    const {userID, productId} = await request.json();
+    const {email, productId, userId} = await request.json();
     let apiCredit = 0;
     if(productId === "319427"){
       apiCredit = 10000
@@ -20,7 +20,7 @@ export async function POST(request:Request) {
     }
     const user = await prisma.user.findUnique({
       where: {
-        id: userID
+        email: email
       },
       select: {id: true, email: true}
     });

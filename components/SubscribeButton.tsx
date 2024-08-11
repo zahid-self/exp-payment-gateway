@@ -9,7 +9,6 @@ import { useUser } from "@stackframe/stack";
 export default function SubscribeButton({ productId }: { productId: string }) {
 
   const [loading, setLoading] = useState(false);
-
   const user = useUser();
 
   const handleClick = async () => {
@@ -17,7 +16,7 @@ export default function SubscribeButton({ productId }: { productId: string }) {
       setLoading(true)
       const { checkoutURL } = await axios.post<any, CreateCheckoutResponse>(
         "/api/payment/subscribe",
-        { userId: user?.id, productId }
+        { email: user?.primaryEmail, productId, userId: user?.id }
       );
       console.log(checkoutURL);
       window.location.href = checkoutURL;

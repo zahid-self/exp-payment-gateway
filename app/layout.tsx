@@ -15,12 +15,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={cn(inter.className)}><StackProvider app={stackServerApp}><StackTheme>
-        <Toaster />
-        <main className="min-h-screen">
-          {children}
-        </main>
-      </StackTheme></StackProvider></body>
+      <body className={cn(inter.className)}>
+        <StackProvider app={stackServerApp}>
+          <StackTheme>
+            <Toaster />
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </StackTheme>
+        </StackProvider>
+      </body>
     </html>
   );
 }

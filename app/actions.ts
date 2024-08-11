@@ -6,15 +6,21 @@ import { configureLemonSqueezy } from "~/config/lemonsqueezy";
 import axios from "axios";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs"
-
+import {stackServerApp} from "./stack";
 
 export async function getUserSubscriptions() {
- const cookiesList = cookies();
-  const userId = cookiesList.get("userId")?.value || "";
 
-  if (!userId) {
+  const stackUser = await stackServerApp.getUser({or: 'redirect'});
+   if (!stackUser.primaryEmail) {
     return null
   }
+
+  const userFromDb = await prisma.user.findUnique({where: {
+    email: stackUser.primaryEmail
+  }});
+
+  const userId = userFromDb?.id
+
 
   const userSubscriptions = await prisma.subscription.findFirst({
     where: {userId, OR: [
@@ -22,6 +28,7 @@ export async function getUserSubscriptions() {
       {status: 'cancelled'}
     ]}
   })
+  console.log(userSubscriptions)
 
   return userSubscriptions;
 }
@@ -204,6 +211,8 @@ export async function unPauseUserSubscription(id: string){
 
 export async function insertUser({ email, password }: { email : string, password : string }) {
    try {
+
+    console.log({email,password})
 
     const prevUser = await prisma.user.findUnique({
       where: { email },
