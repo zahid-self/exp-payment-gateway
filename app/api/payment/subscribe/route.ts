@@ -32,6 +32,7 @@ export async function POST(request:Request) {
 
     console.log({variants});
     console.log({variant});
+    console.log(process.env.LEMONSQUEEZY_API_KEY);
 
     const checkout = await createCheckout(
       process.env.LEMONSQUEEZY_STORE_ID!,
