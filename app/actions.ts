@@ -80,12 +80,12 @@ let parsedData : any = null;
 
 export async function parseData(){
   try {
-    const response = await axios.get(`http://localhost:3000/api/scraper?apiKey=test&engine=true`);
-    parsedData = response.data;
-    return { success: true}
+    const response = await axios.get('/api/scraper?apiKey=test&engine=true');
+    let parsedData = await response.data;
+    return { success: true, data: parsedData}
   } catch (error) {
     if(error instanceof Error){
-       return {success: false, error: error.message}
+       return {success: false, error: error}
     }
   }
 }

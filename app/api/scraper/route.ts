@@ -42,12 +42,15 @@ const reversApiCreditTorDB = async (user: User | null, creditCount: number) => {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+
   const apiKey = searchParams.get('apiKey');
   const engine = searchParams.get('engine');
 
   let user: User | null = await prisma.user.findFirst({
     where: { apiKey: apiKey },
   });
+
+  console.log({searchParams})
 
   if (!user) {
     return NextResponse.json(
@@ -75,9 +78,9 @@ export async function GET(request: Request) {
     await new Promise((resolve) => setTimeout(resolve, 10000));
     const response = await fetch('https://jsonplaceholder.typicode.com/posts?userId=1');
     const posts = await response.json();
+    console.log({posts})
     return NextResponse.json(posts, { status: 200 });
   } catch (error) {
-    // If the request fails or times out, revert action, refund credits, throw an error
     await reversApiCreditTorDB(user, apiCost);
     return NextResponse.json(
       { error: 'An error occurred while fetching users.' },
