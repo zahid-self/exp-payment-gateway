@@ -1,5 +1,6 @@
 import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { NextResponse } from "next/server";
+import { configureLemonSqueezy } from "~/config/lemonsqueezy";
 import { client } from "~/lib/lemon";
 import { prisma } from "~/prisma/db";
 
@@ -27,12 +28,10 @@ export async function POST(request:Request) {
 
     if (!user) return NextResponse.json({ message: "Your account was not found" }, { status: 404 });
 
+    configureLemonSqueezy();
+
     const variants = (await client.listAllVariants({productId: productId})).data;
     const variant = variants.filter((prod) => prod.attributes.product_id === parseInt(productId))[0];
-
-    console.log({variants});
-    console.log({variant});
-    console.log(process.env.LEMONSQUEEZY_API_KEY);
 
     const checkout = await createCheckout(
       process.env.LEMONSQUEEZY_STORE_ID!,
