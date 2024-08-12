@@ -30,6 +30,9 @@ export async function POST(request:Request) {
     const variants = (await client.listAllVariants({productId: productId})).data;
     const variant = variants.filter((prod) => prod.attributes.product_id === parseInt(productId))[0];
 
+    console.log({variants});
+    console.log({variant});
+
     const checkout = await createCheckout(
       process.env.LEMONSQUEEZY_STORE_ID!,
       variant.id,
