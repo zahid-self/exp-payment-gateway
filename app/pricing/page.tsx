@@ -1,10 +1,9 @@
 import React from 'react';
 import { listProducts } from "@lemonsqueezy/lemonsqueezy.js";
 import Plan from '~/components/Plan';
-import { getAPICredit, getUserSubscriptions } from '../actions';
+import { getUserSubscriptions } from '../actions';
 import SubscribedPlan from '~/components/SubscribedPlan';
 import { configureLemonSqueezy } from '~/config/lemonsqueezy';
-import Navbar from '~/components/Navbar';
 
 
 const PricingPage = async () => {
@@ -33,11 +32,8 @@ const PricingPage = async () => {
     return <p className='h-screen flex items-center'>No plans available.</p>
   }
 
-  const apiCredit = await getAPICredit();
-
   return (
     <div className='container mx-auto p-4'>
-      <Navbar apiCredit={apiCredit} />
       <section className='flex justify-center w-full'>
         <div className="text-gray-700 body-font overflow-hidden w-4/6 flex items-center justify-center">
           <div className="container px-5 py-24 mx-auto flex flex-wrap">

@@ -6,7 +6,7 @@ import { configureLemonSqueezy } from "~/config/lemonsqueezy";
 import axios from "axios";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs"
-import {stackServerApp} from "./stack";
+import { stackServerApp } from "~/stack";
 
 export async function getUserSubscriptions() {
 
@@ -61,15 +61,15 @@ export async function cancelSub(id: string){
 }
 
 export async function getAPICredit() {
-  const cookiesList = cookies();
-  const userId = cookiesList.get("userId")?.value || "";
 
-  if (!userId) {
+  const user = await stackServerApp.getUser();
+
+  if (!user?.primaryEmail) {
     return null
   }
 
   const apiCredit = await prisma.user.findUnique({
-    where: {id : userId},
+    where: {email : user.primaryEmail},
     select: {apiCredit : true, usedCredit : true}
   })
 
@@ -212,8 +212,6 @@ export async function unPauseUserSubscription(id: string){
 export async function insertUser({ email, password }: { email : string, password : string }) {
    try {
 
-    console.log({email,password})
-
     const prevUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -227,7 +225,6 @@ export async function insertUser({ email, password }: { email : string, password
       select: { id: true, email: true },
     });
 
-    console.log({user});
 
     return user;
   } catch (err) {

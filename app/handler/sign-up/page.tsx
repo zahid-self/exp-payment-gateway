@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { insertUser } from "../../actions"
-import { OAuthButton, useStackApp } from "@stackframe/stack"
+import { OAuthButton, useStackApp, useUser } from "@stackframe/stack"
 
 const SignUpForm = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -27,7 +27,7 @@ const SignUpForm = () => {
     const errorCode = await app.signUpWithCredential({ email, password });
 
     if (errorCode) {
-      setError(errorCode.message);
+      (errorCode.message);
     }
   };
 

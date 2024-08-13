@@ -1,4 +1,4 @@
-import { createCheckout, getVariant, listVariants } from "@lemonsqueezy/lemonsqueezy.js";
+import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
 import { NextResponse } from "next/server";
 import { configureLemonSqueezy } from "~/config/lemonsqueezy";
 import { prisma } from "~/prisma/db";
