@@ -33,10 +33,11 @@ export async function POST(request:Request) {
     configureLemonSqueezy()
 
     const userId = body.meta.custom_data.user_id;
-    const subscription = await getSubscription(body.data.id) as any;
-    if (!subscription || !subscription.data) {
-      console.error("Subscription or subscription data is null");
-      return;
+    const variantId = body.meta.custom_data.variantId;
+    const subscription = await getSubscription(body.data.id);
+    console.log(subscription.error);
+    if (subscription.error) {
+      throw new Error(subscription.error.message)
     }
     
     switch (eventType) {
@@ -53,11 +54,11 @@ export async function POST(request:Request) {
             userId: userId,
             planId: String(body.data.attributes.product_id),
             status: body.data.attributes.status,
-            subscriptionId: `${subscription.data.id}`,
+            subscriptionId: `${subscription.data.data.id}`,
             customerId: `${body.data.attributes.customer_id}`,
-            variantId: subscription.data.attributes.variant_id,
-            currentPeriodEnd: subscription.data.attributes.renews_at,
-            renewsAt: subscription.data.attributes.renews_at,
+            variantId,
+            currentPeriodEnd: subscription.data.data.attributes.renews_at,
+            renewsAt: subscription.data.data.attributes.renews_at,
           }
         });
 
@@ -71,7 +72,7 @@ export async function POST(request:Request) {
       case "subscription_updated": {
 
         const subscriptionFromDb = await prisma.subscription.findUnique({
-          where: {subscriptionId: String(subscription.data.id)}
+          where: {subscriptionId: String(subscription.data.data.id)}
         })
 
         if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
@@ -79,14 +80,14 @@ export async function POST(request:Request) {
         await prisma.subscription.update({
           where: { subscriptionId: subscriptionFromDb.subscriptionId },
           data: {
-            variantId: subscription.data.attributes.variant_id,
-            renewsAt: subscription.data.attributes.renews_at,
+            variantId,
+            renewsAt: subscription.data.data.attributes.renews_at,
           },
         });
       }
       case "subscription_cancelled":{
         const subscriptionFromDb = await prisma.subscription.findUnique({
-          where: {subscriptionId: subscription.data.id}
+          where: {subscriptionId: subscription.data.data.id}
         })
 
         if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
@@ -94,9 +95,9 @@ export async function POST(request:Request) {
         await prisma.subscription.update({
           where: { subscriptionId: subscriptionFromDb.subscriptionId },
           data: {
-            variantId: subscription.data.attributes.variant_id,
-            currentPeriodEnd: subscription.data.attributes.ends_at,
-            renewsAt: subscription.data.attributes.renews_at,
+            variantId,
+            currentPeriodEnd: subscription.data.data.attributes.ends_at,
+            renewsAt: subscription.data.data.attributes.renews_at,
           },
         });
         break;

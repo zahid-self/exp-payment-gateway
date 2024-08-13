@@ -42,6 +42,7 @@ export async function POST(request:Request) {
           custom: {
             user_id: user.id,
             api_credit: String(apiCredit),
+            variantId
           },
         },
         productOptions: {

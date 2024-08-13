@@ -24,9 +24,9 @@ export async function getUserSubscriptionPlan(userId: string) {
       isPro: false
   };
   }
-  const subscription : any = await getSubscription(user.subscriptionId);
+  const subscription = await getSubscription(user.subscriptionId);
 
-  if(!subscription){
+  if(!subscription.data){
     return;
   }
 
@@ -34,7 +34,7 @@ export async function getUserSubscriptionPlan(userId: string) {
   let isCanceled = false;
 
   if (isPro && user.subscriptionId) {
-    isCanceled = subscription.data.attributes.cancelled;
+    isCanceled = subscription.data?.data.attributes.cancelled;
   }
 
   return {
@@ -42,6 +42,6 @@ export async function getUserSubscriptionPlan(userId: string) {
     currentPeriodEnd: user.currentPeriodEnd?.getTime(),
     isCanceled,
     isPro,
-    updatePaymentMethodURL: subscription.data.attributes.urls.update_payment_method,
+    updatePaymentMethodURL: subscription.data.data.attributes.urls.update_payment_method,
   };
 }
