@@ -1,7 +1,9 @@
 import { Buffer } from "buffer";
 import { NextResponse } from "next/server";
-import { client } from "~/lib/lemon";
 import { prisma } from "~/prisma/db";
+import {getSubscription} from "@lemonsqueezy/lemonsqueezy.js"
+import { configureLemonSqueezy } from "~/config/lemonsqueezy";
+
 
 export async function POST(request:Request) {
   try {
@@ -28,17 +30,20 @@ export async function POST(request:Request) {
       throw new Error("Invalid signature.");
     }
 
-    console.log(eventType, 'eventType');
-
+    configureLemonSqueezy()
 
     const userId = body.meta.custom_data.user_id;
+    const subscription = await getSubscription(body.data.id) as any;
+    if (!subscription || !subscription.data) {
+      console.error("Subscription or subscription data is null");
+      return;
+    }
+    
     switch (eventType) {
       case "subscription_created": {
-        const subscription = await client.retrieveSubscription({ id: body.data.id });
         const user = await prisma.user.findUnique({
           where: {id: userId}
         })
-
         if(!user){
           break;
         }
@@ -64,10 +69,9 @@ export async function POST(request:Request) {
         });
       }
       case "subscription_updated": {
-        const subscription = await client.retrieveSubscription({ id: body.data.id });
 
         const subscriptionFromDb = await prisma.subscription.findUnique({
-          where: {subscriptionId: subscription.data.id}
+          where: {subscriptionId: String(subscription.data.id)}
         })
 
         if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
@@ -81,8 +85,6 @@ export async function POST(request:Request) {
         });
       }
       case "subscription_cancelled":{
-        const subscription = await client.retrieveSubscription({ id: body.data.id });
-
         const subscriptionFromDb = await prisma.subscription.findUnique({
           where: {subscriptionId: subscription.data.id}
         })

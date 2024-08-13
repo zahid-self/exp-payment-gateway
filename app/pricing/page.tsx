@@ -14,6 +14,7 @@ const PricingPage = async () => {
       configureLemonSqueezy();
 
       const products = await listProducts({
+        include: ['variants'],
         filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID },
       });
 

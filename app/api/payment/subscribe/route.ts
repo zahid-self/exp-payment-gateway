@@ -1,7 +1,6 @@
-import { createCheckout } from "@lemonsqueezy/lemonsqueezy.js";
+import { createCheckout, getVariant, listVariants } from "@lemonsqueezy/lemonsqueezy.js";
 import { NextResponse } from "next/server";
 import { configureLemonSqueezy } from "~/config/lemonsqueezy";
-import { client } from "~/lib/lemon";
 import { prisma } from "~/prisma/db";
 
 export type CreateCheckoutResponse = {
@@ -10,11 +9,11 @@ export type CreateCheckoutResponse = {
 
 export async function POST(request:Request) {
   try {
-    const {email, productId, userId} = await request.json();
+    const {email, variantId} = await request.json();
     let apiCredit = 0;
-    if(productId === "319427"){
+    if(variantId === "464431"){
       apiCredit = 10000
-    }else if(productId === "319428"){
+    }else if(variantId === "464432"){
       apiCredit = 20000
     }else {
       apiCredit = 30000
@@ -29,13 +28,9 @@ export async function POST(request:Request) {
     if (!user) return NextResponse.json({ message: "Your account was not found" }, { status: 404 });
 
     configureLemonSqueezy();
-
-    const variants = (await client.listAllVariants({productId: productId})).data;
-    const variant = variants.filter((prod) => prod.attributes.product_id === parseInt(productId))[0];
-
     const checkout = await createCheckout(
       process.env.LEMONSQUEEZY_STORE_ID!,
-      variant.id,
+      variantId,
       {
         checkoutOptions: {
           embed: false,
@@ -50,7 +45,7 @@ export async function POST(request:Request) {
           },
         },
         productOptions: {
-          enabledVariants: [parseInt(variant.id)],
+          enabledVariants: [parseInt(variantId)],
           redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
           receiptButtonText: 'Go to Dashboard',
           receiptThankYouNote: 'Thank you for signing up!',

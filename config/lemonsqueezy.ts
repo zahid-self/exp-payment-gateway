@@ -5,7 +5,7 @@ import { lemonSqueezySetup } from "@lemonsqueezy/lemonsqueezy.js";
  * Squeezy JS SDK. Throws an error if any environment variables are missing or
  * if there's an error setting up the SDK.
  */
-export function configureLemonSqueezy() {
+export async function configureLemonSqueezy() {
   const requiredVars = [
     "LEMONSQUEEZY_API_KEY",
     "LEMONSQUEEZY_STORE_ID",
@@ -19,6 +19,7 @@ export function configureLemonSqueezy() {
       `Missing required LEMONSQUEEZY env variables: ${missingVars.join(", ")}. Please, set them in your .env file.`,
     );
   }
+
 
   lemonSqueezySetup({
     apiKey: process.env.LEMONSQUEEZY_API_KEY,

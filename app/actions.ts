@@ -28,7 +28,7 @@ export async function getUserSubscriptions() {
       {status: 'cancelled'}
     ]}
   })
-  console.log(userSubscriptions)
+
 
   return userSubscriptions;
 }

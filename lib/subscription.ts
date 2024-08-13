@@ -1,5 +1,5 @@
 import { prisma } from "~/prisma/db";
-import { client } from "./lemon";
+import { getSubscription } from "@lemonsqueezy/lemonsqueezy.js";
 export async function getUserSubscriptionPlan(userId: string) {
   const user = await prisma.subscription.findUnique({
     where: { id: userId },
@@ -24,7 +24,11 @@ export async function getUserSubscriptionPlan(userId: string) {
       isPro: false
   };
   }
-  const subscription = await client.retrieveSubscription({ id: user.subscriptionId as string });
+  const subscription : any = await getSubscription(user.subscriptionId);
+
+  if(!subscription){
+    return;
+  }
 
   // If user has a pro plan, check cancel status on Stripe.
   let isCanceled = false;

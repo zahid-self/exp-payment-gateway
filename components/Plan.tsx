@@ -4,6 +4,7 @@ import SubscribeButton from './SubscribeButton';
 
 const Plan = ({ plan }: { plan: any }) => {
   const { description, productName, name, price } = plan.attributes;
+  const variantId = plan.relationships.variants.data[0].id;
   return (
     <>
       <div className="lg:w-1/3 lg:mt-px w-full mb-10 lg:mb-0 border-2 border-gray-300 lg:border-none rounded-lg lg:rounded-none">
@@ -56,7 +57,7 @@ const Plan = ({ plan }: { plan: any }) => {
           </svg>
         </p>
         <div className="border-t border-gray-300 p-6 text-center rounded-bl-lg">
-          <SubscribeButton productId={plan.id} />
+          <SubscribeButton variantId={variantId} />
         </div>
       </div>
     </>

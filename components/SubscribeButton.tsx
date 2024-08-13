@@ -6,7 +6,7 @@ import { CreateCheckoutResponse } from "../app/api/payment/subscribe/route";
 import { LoaderIcon } from "react-hot-toast";
 import { useUser } from "@stackframe/stack";
 
-export default function SubscribeButton({ productId }: { productId: string }) {
+export default function SubscribeButton({ variantId }: { variantId: string }) {
 
   const [loading, setLoading] = useState(false);
   const user = useUser();
@@ -16,7 +16,7 @@ export default function SubscribeButton({ productId }: { productId: string }) {
       setLoading(true)
       const { checkoutURL } = await axios.post<any, CreateCheckoutResponse>(
         "/api/payment/subscribe",
-        { email: user?.primaryEmail, productId, userId: user?.id }
+        { email: user?.primaryEmail, variantId }
       );
       console.log(checkoutURL);
       window.location.href = checkoutURL;
