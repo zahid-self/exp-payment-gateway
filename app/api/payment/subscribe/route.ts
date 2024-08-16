@@ -9,6 +9,7 @@ export type CreateCheckoutResponse = {
 
 export async function POST(request:Request) {
   try {
+    configureLemonSqueezy();
     const {email, variantId} = await request.json();
     let apiCredit = 0;
     if(variantId === "464431"){
@@ -25,9 +26,8 @@ export async function POST(request:Request) {
       select: {id: true, email: true}
     });
 
-    if (!user) return NextResponse.json({ message: "Your account was not found" }, { status: 404 });
+    if (!user) return NextResponse.json({ message: "Your account was not found" }, { status: 404 }); 
 
-    configureLemonSqueezy();
     const checkout = await createCheckout(
       process.env.LEMONSQUEEZY_STORE_ID!,
       variantId,
@@ -53,7 +53,6 @@ export async function POST(request:Request) {
         },
       }
     )
-    console.log(checkout);
     return NextResponse.json({ checkoutURL: checkout.data?.data.attributes.url }, { status: 201 });
   } catch (err) {
    if(err instanceof Error){

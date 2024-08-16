@@ -28,8 +28,6 @@ export async function getUserSubscriptions() {
       {status: 'cancelled'}
     ]}
   })
-
-
   return userSubscriptions;
 }
 
@@ -233,3 +231,4 @@ export async function insertUser({ email, password }: { email : string, password
     }
   }
 }
+

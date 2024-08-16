@@ -57,7 +57,7 @@ const Plan = ({ plan }: { plan: any }) => {
           </svg>
         </p>
         <div className="border-t border-gray-300 p-6 text-center rounded-bl-lg">
-          <SubscribeButton variantId={variantId} />
+          {name !== "Free Plan" && <SubscribeButton variantId={variantId} />}
         </div>
       </div>
     </>

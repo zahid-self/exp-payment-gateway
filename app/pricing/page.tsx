@@ -14,7 +14,7 @@ const PricingPage = async () => {
 
       const products = await listProducts({
         include: ['variants'],
-        filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID },
+        filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID, },
       });
 
       return products.data?.data;

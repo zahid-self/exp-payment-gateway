@@ -2,9 +2,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from 'next/navigation';
+import { useUser } from "@stackframe/stack";
 
 export default function Home() {
 
+  useUser({ or: 'redirect' })
   const [isLoading, setIsLoading] = useState(false);
   const [parsedData, setParsedData] = useState(null)
   const router = useRouter();

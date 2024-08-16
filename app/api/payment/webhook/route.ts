@@ -3,108 +3,136 @@ import { NextResponse } from "next/server";
 import { prisma } from "~/prisma/db";
 import {getSubscription} from "@lemonsqueezy/lemonsqueezy.js"
 import { configureLemonSqueezy } from "~/config/lemonsqueezy";
+import crypto from "node:crypto";
 
 
 export async function POST(request:Request) {
-  try {
-    const crypto = typeof window === "undefined" ? require("crypto"): null;
-    if(!crypto){
-      throw new Error("crypto is required");
-    }
+    try {
+      configureLemonSqueezy();
+      if (!process.env.LEMONSQUEEZY_WEBHOOK_SECRET) {
+        return new Response("Lemon Squeezy Webhook Secret not set in .env", {
+          status: 500,
+        });
+      }
 
-    //catch the event type
-    const clonedReq = request.clone();
-    const eventType = request.headers.get("X-Event-Name");
-    const body = await request.json();
+      // First, make sure the request is from Lemon Squeezy.
+      const rawBody = await request.text();
+      const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
-    // check signature 
-    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
-    if(!secret){
-      throw new Error("Webhook signature secret is not defined.");
-    }
-    const hmac = crypto.createHmac("sha256", secret);
-    const digest = Buffer.from(hmac.update(await clonedReq.text()).digest("hex"), "utf-8");
-    const signature = Buffer.from(request.headers.get("X-Signature") || "", "utf8");
+      const hmac = crypto.createHmac("sha256", secret);
+      const digest = Buffer.from(hmac.update(rawBody).digest("hex"), "utf8");
+      const signature = Buffer.from(
+        request.headers.get("X-Signature") ?? "",
+        "utf8",
+      );
 
-    if(!crypto.timingSafeEqual(digest,signature)){
-      throw new Error("Invalid signature.");
-    }
+      if (!crypto.timingSafeEqual(digest, signature)) {
+        return new Response("Invalid signature", { status: 400 });
+      }
 
-    configureLemonSqueezy()
+      const body = JSON.parse(rawBody);
+      const userId = body.meta.custom_data.user_id;
+      const eventype = body.meta.event_name;
+      let subscribedId = null;
+      if(eventype === "subscription_payment_success"){
+        subscribedId = body.data.attributes.subscription_id
+      }else{
+        subscribedId = body.data.id
+      }
+      const subscription = await getSubscription(subscribedId);
+      if (subscription.error) {
+        throw new Error(subscription.error.message)
+      }
 
-    const userId = body.meta.custom_data.user_id;
-    const variantId = body.meta.custom_data.variantId;
-    const subscription = await getSubscription(body.data.id);
-    console.log(subscription.error);
-    if (subscription.error) {
-      throw new Error(subscription.error.message)
-    }
+      const subscriptionFromDb = await prisma.subscription.findUnique({
+        where: {subscriptionId: subscription.data.data.id}
+      })
     
-    switch (eventType) {
-      case "subscription_created": {
-        const user = await prisma.user.findUnique({
-          where: {id: userId}
-        })
-        if(!user){
+      switch (eventype) {
+        case "subscription_created": 
+          const user = await prisma.user.findUnique({
+            where: {id: userId}
+          })
+          if(!user){
+            break;
+          }
+          try {
+              await prisma.subscription.create({
+              data: {
+                userId: userId,
+                planId: String(body.data.attributes.product_id),
+                status: body.data.attributes.status,
+                subscriptionId: `${subscription.data.data.id}`,
+                customerId: `${body.data.attributes.customer_id}`,
+                variantId: subscription.data.data.attributes.variant_id,
+                currentPeriodEnd: subscription.data.data.attributes.renews_at,
+                renewsAt: subscription.data.data.attributes.renews_at,
+              }
+            });
+
+            await prisma.user.update({
+              where: {id: userId},
+              data: {
+                apiCredit: user?.apiCredit + parseInt(body.meta.custom_data.api_credit)
+              }
+            });
+          } catch (error) {
+            console.log(error)
+          }
           break;
-        }
+        case "subscription_payment_success":
+          
+          if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
 
-        await prisma.subscription.create({
-          data: {
-            userId: userId,
-            planId: String(body.data.attributes.product_id),
-            status: body.data.attributes.status,
-            subscriptionId: `${subscription.data.data.id}`,
-            customerId: `${body.data.attributes.customer_id}`,
-            variantId,
-            currentPeriodEnd: subscription.data.data.attributes.renews_at,
-            renewsAt: subscription.data.data.attributes.renews_at,
-          }
-        });
+          await prisma.subscription.update({
+            where: { subscriptionId: subscriptionFromDb.subscriptionId },
+            data: {
+              paymentStatus: body.data.attributes.status,
+              billingReason:  body.data.attributes.billing_reason,
+            },
+          });
+          break;
+        case "subscription_payment_failed":
+          
+          if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
 
-        await prisma.user.update({
-          where: {id: userId},
-          data: {
-            apiCredit: user?.apiCredit + parseInt(body.meta.custom_data.api_credit)
-          }
-        });
+          await prisma.subscription.update({
+            where: { subscriptionId: subscriptionFromDb.subscriptionId },
+            data: {
+              paymentStatus: body.data.attributes.status,
+              billingReason:  body.data.attributes.billing_reason,
+            },
+          });
+          break;
+        case "subscription_updated":
+          if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+
+          await prisma.subscription.update({
+            where: { subscriptionId: subscriptionFromDb.subscriptionId },
+            data: {
+              variantId: subscription.data.data.attributes.variant_id,
+              renewsAt: subscription.data.data.attributes.renews_at,
+            },
+          });
+          break;
+        case "subscription_cancelled":
+        
+          if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+
+          await prisma.subscription.update({
+            where: { subscriptionId: subscriptionFromDb.subscriptionId },
+            data: {
+              variantId: subscription.data.data.attributes.variant_id,
+              currentPeriodEnd: subscription.data.data.attributes.ends_at,
+              renewsAt: subscription.data.data.attributes.renews_at,
+            },
+          });
+          break;
+        default: 
+          break;
       }
-      case "subscription_updated": {
-
-        const subscriptionFromDb = await prisma.subscription.findUnique({
-          where: {subscriptionId: String(subscription.data.data.id)}
-        })
-
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
-
-        await prisma.subscription.update({
-          where: { subscriptionId: subscriptionFromDb.subscriptionId },
-          data: {
-            variantId,
-            renewsAt: subscription.data.data.attributes.renews_at,
-          },
-        });
+        return NextResponse.json({ message: "Webhook processed successfully" }, { status: 200 });
+      } catch (error) {
+        console.log(error.response)
       }
-      case "subscription_cancelled":{
-        const subscriptionFromDb = await prisma.subscription.findUnique({
-          where: {subscriptionId: subscription.data.data.id}
-        })
-
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
-
-        await prisma.subscription.update({
-          where: { subscriptionId: subscriptionFromDb.subscriptionId },
-          data: {
-            variantId,
-            currentPeriodEnd: subscription.data.data.attributes.ends_at,
-            renewsAt: subscription.data.data.attributes.renews_at,
-          },
-        });
-        break;
-      }
-    }
-    return NextResponse.json({ message: "Webhook processed successfully" }, { status: 200 });
-  } catch (error) {
-    console.log(error)
-  }
 }
