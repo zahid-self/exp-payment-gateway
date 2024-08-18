@@ -54,7 +54,10 @@ export async function POST(request: Request) {
             where: { id: userId },
           });
           if (!user) {
-            break;
+            return NextResponse.json(
+              { message: 'User not found' },
+              { status: 404 },
+            );
           }
           try {
             await prisma.subscription.create({
@@ -86,7 +89,12 @@ export async function POST(request: Request) {
         }
         break;
       case 'subscription_payment_success':
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId){
+          return NextResponse.json(
+            { message: 'Subscription not found' },
+            { status: 404 },
+          );
+        };
         if (body.data.attributes.billing_reason === 'renewal') {
           await prisma.$transaction([
             prisma.subscription.update({
@@ -101,7 +109,7 @@ export async function POST(request: Request) {
                 id: userId,
               },
               data: {
-                apiCredit: body.meta.custom_data.api_credit,
+                apiCredit: parseInt(body.meta.custom_data.api_credit),
               },
             }),
           ]);
@@ -116,7 +124,12 @@ export async function POST(request: Request) {
         });
         break;
       case 'subscription_payment_failed':
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId){
+          return NextResponse.json(
+            { message: 'Subscription not found' },
+            { status: 404 },
+          );
+        };
 
         await prisma.subscription.update({
           where: { subscriptionId: subscriptionFromDb.subscriptionId },
@@ -127,7 +140,12 @@ export async function POST(request: Request) {
         });
         break;
       case 'subscription_updated':
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId){
+          return NextResponse.json(
+            { message: 'Subscription not found' },
+            { status: 404 },
+          );
+        };
 
         await prisma.subscription.update({
           where: { subscriptionId: subscriptionFromDb.subscriptionId },
@@ -138,8 +156,12 @@ export async function POST(request: Request) {
         });
         break;
       case 'subscription_cancelled':
-        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
-
+        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId){
+          return NextResponse.json(
+            { message: 'Subscription not found' },
+            { status: 404 },
+          );
+        };
         await prisma.subscription.update({
           where: { subscriptionId: subscriptionFromDb.subscriptionId },
           data: {
@@ -160,6 +182,10 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
+      return NextResponse.json(
+        { message: 'Error processing webhook' },
+        { status: 500 },
+      );
     }
   }
 }
