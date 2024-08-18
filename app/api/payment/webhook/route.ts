@@ -43,8 +43,9 @@ export async function POST(request: Request) {
       throw new Error(subscription.error.message);
     }
 
+
     const subscriptionFromDb = await prisma.subscription.findUnique({
-      where: { subscriptionId: subscription.data.data.id },
+      where: { subscriptionId: String(subscribedId) },
     });
 
     switch (eventype) {
