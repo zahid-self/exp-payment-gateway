@@ -43,6 +43,8 @@ export async function POST(request: Request) {
       throw new Error(subscription.error.message);
     }
 
+    console.log(subscription);
+
 
     const subscriptionFromDb = await prisma.subscription.findUnique({
       where: { subscriptionId: String(subscribedId) },
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
             { status: 404 },
           );
         };
-        if (body.data.attributes.billing_reason === 'renewal') {
+        if (body.data.attributes.billing_reason === 'renewal' && body.data.attributes.status === "paid") {
           await prisma.$transaction([
             prisma.subscription.update({
               where: { subscriptionId: subscriptionFromDb.subscriptionId },
