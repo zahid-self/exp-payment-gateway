@@ -175,6 +175,33 @@ export async function POST(request: Request) {
           },
         });
         break;
+      case 'subscription_expired': {
+        if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+        });
+
+        if (!user) {
+          break;
+        }
+
+        await prisma.subscription.update({
+          where: { subscriptionId: subscriptionFromDb.subscriptionId },
+          data: {
+            status: body.data.attributes.status,
+            statusFormatted: subscription.data.data.attributes.status_formatted,
+          },
+        });
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            apiCredit: 0,
+          },
+        });
+        break;
+      }
       default:
         break;
     }
