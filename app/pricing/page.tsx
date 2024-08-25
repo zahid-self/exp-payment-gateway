@@ -1,7 +1,7 @@
 import React from 'react';
 import { listProducts } from "@lemonsqueezy/lemonsqueezy.js";
 import Plan from '~/components/Plan';
-import { getUserSubscriptions } from '../actions';
+import { getSubscriptionURLs, getUserSubscriptions } from '../actions';
 import SubscribedPlan from '~/components/SubscribedPlan';
 import { configureLemonSqueezy } from '~/config/lemonsqueezy';
 
@@ -24,11 +24,8 @@ const PricingPage = async () => {
   }
 
   const subscription = await getUserSubscriptions();
-
-  console.log(subscription);
-
   const allPlans = await syncPlans();
-
+  const subscriptionUrls = await getSubscriptionURLs(subscription?.subscriptionId as string);
 
   if (!allPlans?.length) {
     return <p className='h-screen flex items-center'>No plans available.</p>
@@ -55,7 +52,7 @@ const PricingPage = async () => {
             {
               subscription ?
                 <div className="flex lg:w-3/4 w-full flex-wrap lg:border border-gray-300 rounded-lg">
-                  <SubscribedPlan plan={allPlans} subscription={subscription} />
+                  <SubscribedPlan plan={allPlans} subscription={subscription} subscriptionUrls={subscriptionUrls} />
                 </div>
                 :
                 <div className="flex lg:w-3/4 w-full flex-wrap lg:border border-gray-300 rounded-lg">

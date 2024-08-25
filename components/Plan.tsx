@@ -3,7 +3,7 @@ import SubscribeButton from './SubscribeButton';
 
 
 const Plan = ({ plan }: { plan: any }) => {
-  const { description, productName, name, price } = plan.attributes;
+  const { price_formatted, name, price } = plan.attributes;
   const variantId = plan.relationships.variants.data[0].id;
   return (
     <>
@@ -11,7 +11,7 @@ const Plan = ({ plan }: { plan: any }) => {
         <div className="px-2 text-center h-48 flex flex-col items-center justify-center">
           <h3 className="tracking-widest">{name}</h3>
           <h2 className="text-3xl text-gray-900 font-medium leading-none mb-4 mt-2">{price}</h2>
-          <span className="text-sm text-gray-600">Next 1 months</span>
+          <span className="text-sm text-gray-600">{price_formatted}</span>
         </div>
         <p className="bg-gray-100 text-gray-600 h-12 text-center px-2 flex items-center -mt-px justify-center border-t border-gray-300">Schlitz single-origin</p>
         <p className="text-gray-600 text-center h-12 flex items-center justify-center">

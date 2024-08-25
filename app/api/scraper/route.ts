@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   const engine = searchParams.get('engine');
 
   let user: User | null = await prisma.user.findFirst({
-    where: { apiKey: apiKey },
+    where: { email: apiKey as string },
   });
 
   console.log({searchParams})
@@ -60,12 +60,10 @@ export async function GET(request: Request) {
   }
 
   const apiCost = calculateAPICost(engine as string);
-  // Deduct API credits from the system
   user = await deductApiCreditFromDB(user, apiCost);
   const remainingCredits = user?.apiCredit - user?.usedCredit;
 
   if (remainingCredits < 0) {
-    // If the balance is negative, revert action, refund credits, throw an error
     await reversApiCreditTorDB(user, apiCost);
     return NextResponse.json(
       { message: 'Insufficient credits to make the request.' },
@@ -74,7 +72,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Request scraper engine
     await new Promise((resolve) => setTimeout(resolve, 10000));
     const response = await fetch('https://jsonplaceholder.typicode.com/posts?userId=1');
     const posts = await response.json();

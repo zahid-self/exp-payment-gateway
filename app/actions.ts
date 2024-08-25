@@ -1,7 +1,7 @@
 'use server';
 import { cookies } from "next/headers";
 import { prisma } from "~/prisma/db";
-import {cancelSubscription, updateSubscription} from "@lemonsqueezy/lemonsqueezy.js"
+import {cancelSubscription, getSubscription, updateSubscription} from "@lemonsqueezy/lemonsqueezy.js"
 import { configureLemonSqueezy } from "~/config/lemonsqueezy";
 import axios from "axios";
 import { revalidatePath } from "next/cache";
@@ -229,3 +229,14 @@ export async function insertUser({ email, password }: { email : string, password
   }
 }
 
+
+export async function getSubscriptionURLs(id: string) {
+  configureLemonSqueezy()
+  const subscription = await getSubscription(id)
+
+  if (subscription.error) {
+    throw new Error(subscription.error.message)
+  }
+
+  return subscription.data?.data.attributes.urls
+}
