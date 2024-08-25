@@ -25,6 +25,8 @@ const PricingPage = async () => {
 
   const subscription = await getUserSubscriptions();
 
+  console.log(subscription);
+
   const allPlans = await syncPlans();
 
 

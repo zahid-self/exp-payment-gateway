@@ -37,7 +37,6 @@ export async function cancelSub(id: string){
 
   const cancelledSub = await cancelSubscription(id);
 
-  console.log(cancelledSub.data);
 
   if(cancelledSub.error){
     throw new Error(cancelledSub.error.message)
@@ -50,7 +49,6 @@ export async function cancelSub(id: string){
         status: cancelledSub.data?.data.attributes.status,
       }
     })
-    console.log('first')
   } catch (error) {
      throw new Error(`Failed to cancel Subscription #${id} in the database.`)
   }
@@ -125,7 +123,6 @@ export async function renewSubscription({subscriptionId,userId}: {subscriptionId
       }
     );
 
-    console.log(response);
 
     await prisma.user.update({
       where: {id: userId},

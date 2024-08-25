@@ -43,12 +43,14 @@ export async function POST(request: Request) {
       throw new Error(subscription.error.message);
     }
 
-    console.log(subscription);
+    console.log(body.data, 'body attributes');
 
 
     const subscriptionFromDb = await prisma.subscription.findUnique({
       where: { subscriptionId: String(subscribedId) },
     });
+
+    console.log(eventype);
 
     switch (eventype) {
       case 'subscription_created':
@@ -177,7 +179,6 @@ export async function POST(request: Request) {
         break;
       case 'subscription_expired': {
         if (!subscriptionFromDb || !subscriptionFromDb.subscriptionId) return;
-
         const user = await prisma.user.findUnique({
           where: { id: userId },
         });
@@ -191,6 +192,7 @@ export async function POST(request: Request) {
           data: {
             status: body.data.attributes.status,
             statusFormatted: subscription.data.data.attributes.status_formatted,
+            endsAt: subscription.data.data.attributes.ends_at,
           },
         });
 

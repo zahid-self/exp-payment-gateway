@@ -35,4 +35,5 @@ model Subscription {
   billingReason    String?
   currentPeriodEnd DateTime?
   renewsAt         DateTime?
+  endsAt           DateTime?
 }
