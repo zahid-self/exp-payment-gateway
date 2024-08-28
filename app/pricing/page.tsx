@@ -24,8 +24,13 @@ const PricingPage = async () => {
   }
 
   const subscription = await getUserSubscriptions();
+
   const allPlans = await syncPlans();
-  const subscriptionUrls = await getSubscriptionURLs(subscription?.subscriptionId as string);
+
+  let subscriptionUrls = null;
+  if (subscription) {
+    subscriptionUrls = await getSubscriptionURLs(subscription?.subscriptionId as string);
+  }
 
   if (!allPlans?.length) {
     return <p className='h-screen flex items-center'>No plans available.</p>
@@ -36,7 +41,7 @@ const PricingPage = async () => {
       <section className='flex justify-center w-full'>
         <div className="text-gray-700 body-font overflow-hidden w-4/6 flex items-center justify-center">
           <div className="container px-5 py-24 mx-auto flex flex-wrap">
-            <div className={`lg:w-1/4 mt-48 hidden lg:block`}>
+            <div className={`lg:w-2/6 mt-48 hidden lg:block`}>
               <div className="mt-px border-t border-gray-300 border-b border-l rounded-tl-lg rounded-bl-lg overflow-hidden">
                 <p className="bg-gray-100 text-gray-900 h-12 text-center px-4 flex items-center justify-start -mt-px">Fingerstache disrupt</p>
                 <p className="text-gray-900 h-12 text-center px-4 flex items-center justify-start">Franzen hashtag</p>
@@ -51,11 +56,11 @@ const PricingPage = async () => {
             </div>
             {
               subscription ?
-                <div className="flex lg:w-3/4 w-full flex-wrap lg:border border-gray-300 rounded-lg">
+                <div className="flex lg:w-4/6 w-full flex-wrap lg:border border-gray-300 rounded-lg">
                   <SubscribedPlan plan={allPlans} subscription={subscription} subscriptionUrls={subscriptionUrls} />
                 </div>
                 :
-                <div className="flex lg:w-3/4 w-full flex-wrap lg:border border-gray-300 rounded-lg">
+                <div className="flex lg:w-4/6 w-full flex-wrap lg:border border-gray-300 rounded-lg">
                   {allPlans.map((plan, index) => {
                     return <Plan key={`plan-${index}`} plan={plan} />
                   })}

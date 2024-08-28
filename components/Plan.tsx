@@ -7,7 +7,7 @@ const Plan = ({ plan }: { plan: any }) => {
   const variantId = plan.relationships.variants.data[0].id;
   return (
     <>
-      <div className="lg:w-1/3 lg:mt-px w-full mb-10 lg:mb-0 border-2 border-gray-300 lg:border-none rounded-lg lg:rounded-none">
+      <div className="lg:w-2/4 lg:mt-px w-full mb-10 lg:mb-0 border-2 border-gray-300 lg:border-none rounded-lg lg:rounded-none">
         <div className="px-2 text-center h-48 flex flex-col items-center justify-center">
           <h3 className="tracking-widest">{name}</h3>
           <h2 className="text-3xl text-gray-900 font-medium leading-none mb-4 mt-2">{price}</h2>
